@@ -1,11 +1,11 @@
 {
   "name": "rbush",
-  "version": "2.0.1",
-  "description": "High-performance 2D spatial index for rectangles (based on R*-tree with bulk loading and bulk insertion algorithms)",
-  "homepage": "https://github.com/mourner/rbush",
+  "version": "2.0.2",
+  "description": "Fork of @mourner's rBush package, allows for meaningful use of the internal tree groupings/nodes.",
+  "homepage": "https://github.com/sikanrong/rbush",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mourner/rbush.git"
+    "url": "git://github.com/sikanrong/rbush.git"
   },
   "keywords": [
     "spatial",
@@ -15,7 +15,7 @@
     "index",
     "math"
   ],
-  "author": "Vladimir Agafonkin",
+  "author": "Vladimir Agafonkin, Alexander Pilafian",
   "license": "MIT",
   "main": "index.js",
   "devDependencies": {
