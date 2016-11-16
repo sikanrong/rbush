@@ -44,6 +44,7 @@
     }
   },
   "dependencies": {
-    "quickselect": "^1.0.0"
+    "quickselect": "^1.0.0",
+    "uuid": "2.0.3"
   }
 }
