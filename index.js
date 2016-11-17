@@ -50,8 +50,8 @@ rbush.prototype = {
                 childBBox = node.leaf ? toBBox(child) : child;
 
                 if (intersects(bbox, childBBox)) {
-                    parent_nodes[node.height] = parent_nodes[node.height] || [];
-                    parent_nodes[node.height].push(node);
+                    parent_nodes[node.height] = parent_nodes[node.height] || {};
+                    parent_nodes[node.height][node.id] = node;
 
                     if (node.leaf) result.push(child);
                     else if (contains(bbox, childBBox)) this._all(child, result, parent_nodes);
@@ -205,8 +205,8 @@ rbush.prototype = {
         parents = parents || {};
         var nodesToSearch = [];
         while (node) {
-            parents[node.height] = parents[node.height] || [];
-            parents[node.height].push(node);
+            parents[node.height] = parents[node.height] || {};
+            parents[node.height][node.id] = node;
             if (node.leaf) result.push.apply(result, node.children);
             else nodesToSearch.push.apply(nodesToSearch, node.children);
             node = nodesToSearch.pop();
