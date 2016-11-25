@@ -31,12 +31,37 @@ rbush.prototype = {
         return this._nodes_uuid[uuid];
     },
 
+    walk: function(with_node){
+        var _walk_stack = [];
+        var root_node = this.data;
+
+        var iterate = function (node) {
+            _walk_stack.push(node);
+            with_node(node, _walk_stack);
+
+            if(!node.children){
+                _walk_stack.pop(node);
+                return;
+            }
+
+            for(var i = 0; i < node.children.length; i++){
+                iterate(node.children[i]);
+            }
+
+            _walk_stack.pop(node);
+        };
+
+        iterate(root_node);
+    },
+
     search: function (bbox) {
 
         var node = this.data,
-            result = [],
-            toBBox = this.toBBox,
-            parent_nodes = {};
+            result = {
+                parent_nodes: {},
+                leaf_nodes: []
+            },
+            toBBox = this.toBBox;
 
         if (!intersects(bbox, node)) return result;
 
@@ -50,21 +75,18 @@ rbush.prototype = {
                 childBBox = node.leaf ? toBBox(child) : child;
 
                 if (intersects(bbox, childBBox)) {
-                    parent_nodes[node.height] = parent_nodes[node.height] || {};
-                    parent_nodes[node.height][node.id] = node;
+                    result.parent_nodes[node.height] = result.parent_nodes[node.height] || {};
+                    result.parent_nodes[node.height][node.id] = node;
 
-                    if (node.leaf) result.push(child);
-                    else if (contains(bbox, childBBox)) this._all(child, result, parent_nodes);
+                    if (node.leaf) result.leaf_nodes.push(child);
+                    else if (contains(bbox, childBBox)) this._all(child, result.leaf_nodes, result.parent_nodes);
                     else nodesToSearch.push(child);
                 }
             }
             node = nodesToSearch.pop();
         }
 
-        return {
-            parent_nodes: parent_nodes,
-            leaf_nodes: result
-        };
+        return result;
     },
 
     collides: function (bbox) {
@@ -534,7 +556,7 @@ function bboxMargin(a) { return (a.maxX - a.minX) + (a.maxY - a.minY); }
 
 function enlargedArea(a, b) {
     return (Math.max(b.maxX, a.maxX) - Math.min(b.minX, a.minX)) *
-           (Math.max(b.maxY, a.maxY) - Math.min(b.minY, a.minY));
+        (Math.max(b.maxY, a.maxY) - Math.min(b.minY, a.minY));
 }
 
 function intersectionArea(a, b) {
@@ -544,21 +566,21 @@ function intersectionArea(a, b) {
         maxY = Math.min(a.maxY, b.maxY);
 
     return Math.max(0, maxX - minX) *
-           Math.max(0, maxY - minY);
+        Math.max(0, maxY - minY);
 }
 
 function contains(a, b) {
     return a.minX <= b.minX &&
-           a.minY <= b.minY &&
-           b.maxX <= a.maxX &&
-           b.maxY <= a.maxY;
+        a.minY <= b.minY &&
+        b.maxX <= a.maxX &&
+        b.maxY <= a.maxY;
 }
 
 function intersects(a, b) {
     return b.minX <= a.maxX &&
-           b.minY <= a.maxY &&
-           b.maxX >= a.minX &&
-           b.maxY >= a.minY;
+        b.minY <= a.maxY &&
+        b.maxX >= a.minX &&
+        b.maxY >= a.minY;
 }
 
 
