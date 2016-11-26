@@ -12,7 +12,7 @@ function rbush(maxEntries, format) {
     this._maxEntries = Math.max(4, maxEntries || 9);
     this._minEntries = Math.max(2, Math.ceil(this._maxEntries * 0.4));
 
-    this._nodes_uuid = {};
+    this._nodesUuid = {};
 
     if (format) {
         this._initFormat(format);
@@ -27,39 +27,39 @@ rbush.prototype = {
         return this._all(node, []);
     },
 
-    getNode: function(uuid){
-        return this._nodes_uuid[uuid];
+    getNode: function (uuid) {
+        return this._nodesUuid[uuid];
     },
 
-    walk: function(with_node){
-        var _walk_stack = [];
-        var root_node = this.data;
+    walk: function (withNode) {
+        var _walkStack = [];
+        var rootNode = this.data;
 
         var iterate = function (node) {
-            _walk_stack.push(node);
-            with_node(node, _walk_stack);
+            _walkStack.push(node);
+            withNode(node, _walkStack);
 
-            if(!node.children){
-                _walk_stack.pop(node);
+            if (!node.children) {
+                _walkStack.pop(node);
                 return;
             }
 
-            for(var i = 0; i < node.children.length; i++){
+            for (var i = 0; i < node.children.length; i++) {
                 iterate(node.children[i]);
             }
 
-            _walk_stack.pop(node);
+            _walkStack.pop(node);
         };
 
-        iterate(root_node);
+        iterate(rootNode);
     },
 
     search: function (bbox) {
 
         var node = this.data,
             result = {
-                parent_nodes: {},
-                leaf_nodes: []
+                parentNodes: {},
+                leafNodes: []
             },
             toBBox = this.toBBox;
 
@@ -75,11 +75,11 @@ rbush.prototype = {
                 childBBox = node.leaf ? toBBox(child) : child;
 
                 if (intersects(bbox, childBBox)) {
-                    result.parent_nodes[node.height] = result.parent_nodes[node.height] || {};
-                    result.parent_nodes[node.height][node.id] = node;
+                    result.parentNodes[node.height] = result.parentNodes[node.height] || {};
+                    result.parentNodes[node.height][node.id] = node;
 
-                    if (node.leaf) result.leaf_nodes.push(child);
-                    else if (contains(bbox, childBBox)) this._all(child, result.leaf_nodes, result.parent_nodes);
+                    if (node.leaf) result.leafNodes.push(child);
+                    else if (contains(bbox, childBBox)) this._all(child, result.leafNodes, result.parentNodes);
                     else nodesToSearch.push(child);
                 }
             }
@@ -493,12 +493,12 @@ rbush.prototype = {
     },
 
     // calculate node's bbox from bboxes of its children
-    _calcBBox: function(node, toBBox) {
+    _calcBBox: function (node, toBBox) {
         this._distBBox(node, 0, node.children.length, toBBox, node);
     },
 
     // min bounding rectangle of node children from k to p-1
-    _distBBox: function(node, k, p, toBBox, destNode) {
+    _distBBox: function (node, k, p, toBBox, destNode) {
         if (!destNode) destNode = this._createNode(null);
         destNode.minX = Infinity;
         destNode.minY = Infinity;
@@ -513,7 +513,7 @@ rbush.prototype = {
         return destNode;
     },
 
-    _createNode: function(children) {
+    _createNode: function (children) {
         var id = uuid.v4();
         var node = {
             children: children,
@@ -525,7 +525,7 @@ rbush.prototype = {
             maxX: -Infinity,
             maxY: -Infinity
         };
-        this._nodes_uuid[id] = node;
+        this._nodesUuid[id] = node;
         return node;
     }
 

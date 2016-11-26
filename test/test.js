@@ -32,6 +32,21 @@ function arrToBBox(arr) {
     };
 }
 
+function stripUuids(node) {
+    var origNode = node;
+
+    var nodesToSearch = [];
+    while (node) {
+        if (node.id)
+            delete node.id;
+        if (node.children)
+            nodesToSearch.push.apply(nodesToSearch, node.children);
+        node = nodesToSearch.pop();
+    }
+
+    return origNode;
+}
+
 var data = [[0,0,0,0],[10,10,10,10],[20,20,20,20],[25,0,25,0],[35,10,35,10],[45,20,45,20],[0,25,0,25],[10,35,10,35],
     [20,45,20,45],[25,25,25,25],[35,35,35,35],[45,45,45,45],[50,0,50,0],[60,10,60,10],[70,20,70,20],[75,0,75,0],
     [85,10,85,10],[95,20,95,20],[50,25,50,25],[60,35,60,35],[70,45,70,45],[75,25,75,25],[85,35,85,35],[95,45,95,45],
@@ -91,29 +106,29 @@ t('#toBBox, #compareMinX, #compareMinY can be overriden to allow custom data str
         return a.minLng - b.minLng || a.minLat - b.minLat;
     }
 
-    sortedEqual(t, tree.search({minX: -180, minY: -90, maxX: 180, maxY: 90}), [
+    sortedEqual(t, tree.search({minX: -180, minY: -90, maxX: 180, maxY: 90}).leafNodes, [
         {minLng: -115, minLat:  45, maxLng: -105, maxLat:  55},
         {minLng:  105, minLat:  45, maxLng:  115, maxLat:  55},
         {minLng:  105, minLat: -55, maxLng:  115, maxLat: -45},
         {minLng: -115, minLat: -55, maxLng: -105, maxLat: -45}
     ], byLngLat);
 
-    sortedEqual(t, tree.search({minX: -180, minY: -90, maxX: 0, maxY: 90}), [
+    sortedEqual(t, tree.search({minX: -180, minY: -90, maxX: 0, maxY: 90}).leafNodes, [
         {minLng: -115, minLat:  45, maxLng: -105, maxLat:  55},
         {minLng: -115, minLat: -55, maxLng: -105, maxLat: -45}
     ], byLngLat);
 
-    sortedEqual(t, tree.search({minX: 0, minY: -90, maxX: 180, maxY: 90}), [
+    sortedEqual(t, tree.search({minX: 0, minY: -90, maxX: 180, maxY: 90}).leafNodes, [
         {minLng: 105, minLat:  45, maxLng: 115, maxLat:  55},
         {minLng: 105, minLat: -55, maxLng: 115, maxLat: -45}
     ], byLngLat);
 
-    sortedEqual(t, tree.search({minX: -180, minY: 0, maxX: 180, maxY: 90}), [
+    sortedEqual(t, tree.search({minX: -180, minY: 0, maxX: 180, maxY: 90}).leafNodes, [
         {minLng: -115, minLat: 45, maxLng: -105, maxLat: 55},
         {minLng:  105, minLat: 45, maxLng:  115, maxLat: 55}
     ], byLngLat);
 
-    sortedEqual(t, tree.search({minX: -180, minY: -90, maxX: 180, maxY: 0}), [
+    sortedEqual(t, tree.search({minX: -180, minY: -90, maxX: 180, maxY: 0}).leafNodes, [
         {minLng:  105, minLat: -55, maxLng:  115, maxLat: -45},
         {minLng: -115, minLat: -55, maxLng: -105, maxLat: -45}
     ], byLngLat);
@@ -141,14 +156,14 @@ t('#load uses standard insertion when given a low number of items', function (t)
         .insert(data[1])
         .insert(data[2]);
 
-    t.same(tree.toJSON(), tree2.toJSON());
+    t.same(stripUuids(tree.toJSON()), stripUuids(tree2.toJSON()));
     t.end();
 });
 
 t('#load does nothing if loading empty data', function (t) {
     var tree = rbush().load([]);
 
-    t.same(tree.toJSON(), rbush().toJSON());
+    t.same(stripUuids(tree.toJSON()), stripUuids(rbush().toJSON()));
     t.end();
 });
 
@@ -208,7 +223,7 @@ t('#load properly merges data of smaller or bigger tree heights', function (t) {
 t('#search finds matching points in the tree given a bbox', function (t) {
 
     var tree = rbush(4).load(data);
-    var result = tree.search({minX: 40, minY: 20, maxX: 80, maxY: 70});
+    var result = tree.search({minX: 40, minY: 20, maxX: 80, maxY: 70}).leafNodes;
 
     sortedEqual(t, result, [
         [70,20,70,20],[75,25,75,25],[45,45,45,45],[50,50,50,50],[60,60,60,60],[70,70,70,70],
@@ -231,7 +246,7 @@ t('#collides returns true when search finds matching points', function (t) {
 t('#search returns an empty array if nothing found', function (t) {
     var result = rbush(4).load(data).search([200, 200, 210, 210]);
 
-    t.same(result, []);
+    t.same(result.leafNodes, []);
     t.end();
 });
 
@@ -248,7 +263,7 @@ t('#all returns all points in the tree', function (t) {
     var result = tree.all();
 
     sortedEqual(t, result, data);
-    sortedEqual(t, tree.search({minX: 0, minY: 0, maxX: 100, maxY: 100}), data);
+    sortedEqual(t, tree.search({minX: 0, minY: 0, maxX: 100, maxY: 100}).leafNodes, data);
 
     t.end();
 });
@@ -286,8 +301,8 @@ t('#insert adds an item to an existing tree correctly', function (t) {
 
 t('#insert does nothing if given undefined', function (t) {
     t.same(
-        rbush().load(data),
-        rbush().load(data).insert());
+        stripUuids(rbush().load(data).data),
+        stripUuids(rbush().load(data).insert().data));
     t.end();
 });
 
@@ -326,14 +341,14 @@ t('#remove removes items correctly', function (t) {
 });
 t('#remove does nothing if nothing found', function (t) {
     t.same(
-        rbush().load(data),
-        rbush().load(data).remove([13, 13, 13, 13]));
+        stripUuids(rbush().load(data).data),
+        stripUuids(rbush().load(data).remove([13, 13, 13, 13]).data));
     t.end();
 });
 t('#remove does nothing if given undefined', function (t) {
     t.same(
-        rbush().load(data),
-        rbush().load(data).remove());
+        stripUuids(rbush().load(data).data),
+        stripUuids(rbush().load(data).remove().data));
     t.end();
 });
 t('#remove brings the tree to a clear state when removing everything one by one', function (t) {
@@ -343,7 +358,7 @@ t('#remove brings the tree to a clear state when removing everything one by one'
         tree.remove(data[i]);
     }
 
-    t.same(tree.toJSON(), rbush(4).toJSON());
+    t.same(stripUuids(tree.toJSON()), stripUuids(rbush(4).toJSON()));
     t.end();
 });
 t('#remove accepts an equals function', function (t) {
@@ -362,8 +377,8 @@ t('#remove accepts an equals function', function (t) {
 
 t('#clear should clear all the data in the tree', function (t) {
     t.same(
-        rbush(4).load(data).clear().toJSON(),
-        rbush(4).toJSON());
+        stripUuids(rbush(4).load(data).clear().toJSON()),
+        stripUuids(rbush(4).toJSON()));
     t.end();
 });
 
