@@ -1,10 +1,10 @@
 RBush-Ext
 =========
 
-RBush-Ext is a fork of @mourner's brilliant (https://github.com/mourner/rbush "rBush package"), allows for meaningful
+RBush-Ext is a fork of @mourner's brilliant [rBush package](https://github.com/mourner/rbush), allows for meaningful
 use of the internal tree groupings/nodes.
 
-Please refer to @mourner's (https://github.com/mourner/rbush "rBush github page") for the original documentation. Here
+Please refer to @mourner's [rBush github page](https://github.com/mourner/rbush) for the original documentation. Here
 I will only document the new functionality in rbush-ext.
 
 ## RBush-Ext Features
@@ -95,3 +95,25 @@ bulk-insert 1M items         | 1.25s  | 2.22s
 
 RBush-Ext updates the tape-based test suite to work with the new #search return format. Also adds new tests for the new
 RBush-Ext functionality.
+
+```
+# #search should return parent nodes of all leaf nodes, sorted by height
+ok 25 should be equivalent
+ok 26 should be equivalent
+ok 27 should be equivalent
+
+# #all returns all points in subtree if passed a node
+ok 28 should be equivalent
+
+# #getNode returns the correct node when passed the corresponding UUID
+ok 31 should be equivalent
+
+# #walk should iterate over all nodes
+ok 32 should be equivalent
+
+1..47
+# tests 47
+# pass  47
+
+# ok
+```
