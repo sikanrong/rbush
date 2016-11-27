@@ -1,6 +1,6 @@
 {
   "name": "rbush-ext",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Fork of @mourner's rBush package, allows for meaningful use of the internal tree groupings/nodes.",
   "homepage": "https://github.com/sikanrong/rbush",
   "repository": {
