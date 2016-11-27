@@ -10,6 +10,10 @@ function sortedEqual(t, a, b, compare) {
     t.same(a.slice().sort(compare), b.slice().sort(compare));
 }
 
+function lexicalCompare(a, b){
+    return a.localeCompare(b);
+}
+
 function defaultCompare(a, b) {
     return (a.minX - b.minX) || (a.minY - b.minY) || (a.maxX - b.maxX) || (a.maxY - b.maxY);
 }
@@ -257,6 +261,32 @@ t('#collides returns false if nothing found', function (t) {
     t.end();
 });
 
+t('#search should return parent nodes of all leaf nodes, sorted by height', function(t) {
+    var tree = rbush(4).load(data);
+    var toplevelNode = tree.data.children[0];
+    var results = tree.search(toplevelNode);
+
+    var heightKeys = Object.keys(results.parentNodes[toplevelNode.height]);
+    t.same((heightKeys.indexOf(toplevelNode.id) >= 0), true);
+
+    //Search should only contain toplevelNode at toplevelNode.height since we searched toplevelNode's bbox.
+    t.same(heightKeys.length, 1);
+
+    t.same(results.parentNodes[toplevelNode.height][toplevelNode.id], toplevelNode);
+    t.end();
+});
+
+t('#all returns all points in subtree if passed a node', function (t) {
+    var tree = rbush(4).load(data);
+    var toplevelNode = tree.data.children[0];
+    var results = tree.all(toplevelNode);
+    var verify = tree.search(toplevelNode).leafNodes;
+
+    sortedEqual(t, results, verify);
+
+    t.end();
+});
+
 t('#all returns all points in the tree', function (t) {
 
     var tree = rbush(4).load(data);
@@ -267,6 +297,35 @@ t('#all returns all points in the tree', function (t) {
 
     t.end();
 });
+
+t('#getNode returns the correct node when passed the corresponding UUID', function(t) {
+    var tree = rbush(4).load(data);
+    var toplevelNode = tree.data.children[0];
+    t.same(toplevelNode, tree.getNode(toplevelNode.id));
+    t.end();
+});
+
+t('#walk should iterate over all nodes', function(t){
+    var tree = rbush(4).load(data);
+    var walkIds = [], verifyIds = [], node = tree.data;
+    tree.walk(function(_node){
+        if (_node.id) walkIds.push(_node.id);
+    });
+
+    //manually walk entire tree collecting IDs.
+    var nodesToSearch = [];
+    while (node) {
+        if (node.id)
+            verifyIds.push(node.id);
+        if(node.children)
+            nodesToSearch.push.apply(nodesToSearch, node.children);
+        node = nodesToSearch.pop();
+    }
+
+    sortedEqual(t, walkIds, verifyIds, lexicalCompare);
+    t.end();
+});
+
 
 t('#toJSON & #fromJSON exports and imports search tree in JSON format', function (t) {
 
