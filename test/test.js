@@ -336,6 +336,18 @@ t('#toJSON & #fromJSON exports and imports search tree in JSON format', function
     t.end();
 });
 
+t('#fromJSON rebuilds the _nodesUuid index', function (t) {
+
+    var tree = rbush(4).load(data);
+    var firstNode = tree.data.children[0];
+
+    var tree2 = rbush(4).fromJSON(tree.data);
+    var firstNode2 = tree2.getNode(firstNode.id);
+
+    t.equal(firstNode, firstNode2);
+    t.end();
+});
+
 t('#insert adds an item to an existing tree correctly', function (t) {
     var items = [
         [0, 0, 0, 0],

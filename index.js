@@ -219,7 +219,14 @@ rbush.prototype = {
     toJSON: function () { return this.data; },
 
     fromJSON: function (data) {
+        var scope = this;
         this.data = data;
+
+        //rebuild _nodesUuid
+        this.walk(function(node){
+            scope._nodesUuid[node.id] = node;
+        });
+
         return this;
     },
 
