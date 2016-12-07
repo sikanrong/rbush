@@ -53,6 +53,9 @@
         var activeObjects = [],
             activeNodes = [];
 
+        var bboxLines = {};
+        var nodeColors = {};
+
         var selectedHeight = 1;
 
         init();
@@ -88,6 +91,9 @@
 
                 if(_elCollection[_activeId] === undefined){
                     _el = document.createElement('LI');
+                    if(nodeColors[_activeId] !== undefined){
+                        _el.style.color = "#"+nodeColors[_activeId].toString(16);
+                    }
                     _elCollection[_activeId] = _el;
                     _el.innerText = String(_activeId);
                     _parentEl.appendChild(_el);
@@ -186,8 +192,8 @@
                     var cubeNumber = (((dims - y) * dims) + x) - dims;
 
                     rbushData.push({
-                        minX: mesh.position.x,
-                        minY: mesh.position.y,
+                        minX: mesh.position.x - cubeDims / 2,
+                        minY: mesh.position.y - cubeDims / 2,
                         maxX: mesh.position.x + cubeDims,
                         maxY: mesh.position.y + cubeDims,
                         store: {num: cubeNumber}
@@ -214,6 +220,31 @@
             }
 
             rbush.load(rbushData);
+
+
+            rbush.walk(function(node){
+                var randomColor = ((1<<24)*Math.random()|0);
+                nodeColors[node.id] = randomColor;
+                var lineMat = new THREE.LineBasicMaterial({color: randomColor, linewidth: 2});
+
+                bboxLines[node.height] = bboxLines[node.height] || new THREE.Object3D();
+
+                var lineGeo = new THREE.Geometry();
+                lineGeo.vertices.push(new THREE.Vector3(node.minX, node.minY, 0));
+                lineGeo.vertices.push(new THREE.Vector3(node.minX, node.maxY, 0));
+                lineGeo.vertices.push(new THREE.Vector3(node.maxX, node.maxY, 0));
+                lineGeo.vertices.push(new THREE.Vector3(node.maxX, node.minY, 0));
+                lineGeo.vertices.push(new THREE.Vector3(node.minX, node.minY, 0));
+                var line = new THREE.Line(lineGeo, lineMat);
+                bboxLines[node.height].add(line);
+            });
+
+            _.each(bboxLines, function(o3d, height){
+                scene.add(o3d);
+                if(height != selectedHeight){
+                    o3d.visible = false;
+                }
+            });
 
             renderer = new THREE.WebGLRenderer();
             renderer.setPixelRatio( window.devicePixelRatio );
