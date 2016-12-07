@@ -26,7 +26,11 @@
     "faucet": "0.0.1",
     "istanbul": "~0.4.3",
     "tape": "^4.5.1",
-    "uglify-js": "^2.6.4"
+    "uglify-js": "^2.6.4",
+
+    "three": "0.81.2",
+    "lodash": "latest",
+    "three-map-controls": "latest"
   },
   "scripts": {
     "test": "eslint index.js test/test.js && node test/test.js | faucet",
