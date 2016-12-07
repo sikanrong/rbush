@@ -7,6 +7,8 @@ use of the internal tree groupings/nodes.
 Please refer to @mourner's [rBush github page](https://github.com/mourner/rbush) for the original documentation. Here
 I will only document the new functionality in rbush-ext.
 
+Here's a [jsfiddle demo]: https://jsfiddle.net/sikanrong/4tjs1z8v/
+
 ## RBush-Ext Features
 
 ### getNode
