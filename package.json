@@ -1,6 +1,6 @@
 {
   "name": "rbush-ext",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Fork of @mourner's rBush package, allows for meaningful use of the internal tree groupings/nodes.",
   "homepage": "https://github.com/sikanrong/rbush",
   "repository": {
@@ -27,7 +27,6 @@
     "istanbul": "~0.4.3",
     "tape": "^4.5.1",
     "uglify-js": "^2.6.4",
-
     "three": "0.81.2",
     "lodash": "latest",
     "three-map-controls": "latest"
