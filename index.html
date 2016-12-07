@@ -7,6 +7,8 @@
     <style>
         body{
             margin: 0px;
+            width: 100%;
+            height: 100%;
         }
 
         canvas{
@@ -18,12 +20,21 @@
         }
 
         .hud{
-            position: absolute;
-        }
-
-        .hud .leaf-nodes li{
             color: white;
         }
+
+        .hud .leaf-nodes,
+        .hud .parent-nodes {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .hud .parent-nodes {
+            top: 0px;
+            right: 0px;
+        }
+
+
     </style>
 </head>
 
@@ -36,18 +47,19 @@
         var meshes = [];
         var dims = 10;
 
-        var displayedLeafLis = {};
+        var displayedLeafLis = {},
+            displayedParentNodeLis = {};
         var hudEl, leavesList, parentNodesList;
         var activeObjects = [],
             activeNodes = [];
 
+        var selectedHeight = 1;
+
         init();
         animate();
 
-
-
         function updateData(){
-            var selectedHeight = 1;
+
             var center = camera.position.clone();
 
             activeObjects = [];
@@ -69,30 +81,46 @@
             activeNodes = (grouping_nodes)? Object.keys(grouping_nodes) : null;
         }
 
+        function updateList(_activeIds, _elCollection, _parentEl){
+
+            _.each(_activeIds, function(_activeId){
+                var _el;
+
+                if(_elCollection[_activeId] === undefined){
+                    _el = document.createElement('LI');
+                    _elCollection[_activeId] = _el;
+                    _el.innerText = String(_activeId);
+                    _parentEl.appendChild(_el);
+                }
+            });
+
+            var _displayed = Object.keys(_elCollection);
+            _.each(_displayed, function(_displayedId){
+                if(_activeIds.indexOf(_displayedId) < 0){
+                    _elCollection[_displayedId].parentNode.removeChild(_elCollection[_displayedId]);
+                    delete _elCollection[_displayedId];
+                }
+            });
+        }
+
         function updateHUD(){
 
             var _activeIds = [];
 
             _.each(activeObjects, function(leafNode){
-                var _el;
-
-                _activeIds.push(leafNode.store.num);
-
-                if(displayedLeafLis[leafNode.store.num] === undefined){
-                    _el = document.createElement('LI');
-                    displayedLeafLis[leafNode.store.num] = _el;
-                    _el.innerText = String(leafNode.store.num);
-                    leavesList.appendChild(_el);
-                }
+                _activeIds.push(String(leafNode.store.num));
             });
 
-            var _displayed = Object.keys(displayedLeafLis);
-            _.each(_displayed, function(id){
-                if(_activeIds.indexOf(parseInt(id)) < 0){
-                    displayedLeafLis[id].parentNode.removeChild(displayedLeafLis[id]);
-                    delete displayedLeafLis[id];
-                }
+            //update leaf-nodes HUD
+            updateList(_activeIds, displayedLeafLis, leavesList);
+
+            _activeIds = [];
+            _.each(activeNodes, function( id ){
+                _activeIds.push(id);
             });
+
+            //update parent-nodes HUD
+            updateList(_activeIds, displayedParentNodeLis, parentNodesList);
 
         };
 
