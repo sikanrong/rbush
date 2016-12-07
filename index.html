@@ -11,6 +11,14 @@
             height: 100%;
         }
 
+        ul{
+            -webkit-margin-before: 0em;
+            -webkit-margin-after: 0em;
+            -webkit-margin-start: 0px;
+            -webkit-margin-end: 0px;
+            -webkit-padding-start: 0px;
+        }
+
         canvas{
             position: absolute;
         }
@@ -27,10 +35,20 @@
         .hud .parent-nodes,
         .hud .height-controls {
             position: absolute;
+            list-style: none;
+            padding: 10px;
+        }
+
+        .hud .leaf-nodes::before{
+            content: "Displayed Leaf-Nodes:"
         }
 
         .hud .leaf-nodes{
             pointer-events: none;
+        }
+
+        .hud .parent-nodes::before{
+            content: "Displayed Grouping-Nodes:"
         }
 
         .hud .parent-nodes {
