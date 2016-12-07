@@ -74,22 +74,16 @@ This facilitates working with groupings by the parent rtree nodes (and their UUI
 
 ## Performance
 
-Performed with Node.js v4.1.0 on a Macbook Pro (mid-2012 A1278).
-Original RBush benchmarks performed on Performed with Node.js v6.2.2 on a Retina Macbook Pro 15 (mid-2012 A1398).
+Both benchmarks performed with Node.js v6.2.2 on a Macbook Pro (mid-2012 A1278), with Samsung EVO SSD disk.
 
-Some of the decrease in performance in RBush-Ext is just due to the differences in hardware. "insert 1M items one by
-one" performance may have dropped due to UUID V4 generation for each node. However bulk-insert still seems to perform
-well.
-
-
-Test                         | RBush  | RBush-Ext
+Test                         | RBush (classic) | RBush-Ext
 ---------------------------- | ------ | ------
-insert 1M items one by one   | 3.18s  | 17.90s
-1000 searches of 0.01% area  | 0.03s  | 0.16s
-1000 searches of 1% area     | 0.35s  | 1.36s
-1000 searches of 10% area    | 2.18s  | 7.30s
-remove 1000 items one by one | 0.02s  | 0.24s
-bulk-insert 1M items         | 1.25s  | 2.22s
+insert 1M items one by one   | 3.71s  | 19.94s
+1000 searches of 0.01% area  | 0.03s  | 0.19s
+1000 searches of 1% area     | 0.34s  | 2.00s
+1000 searches of 10% area    | 2.30s  | 12.36s
+remove 1000 items one by one | 0.02s  | 0.25s
+bulk-insert 1M items         | 1.58s  | 4.60s
 
 ## Tests
 
