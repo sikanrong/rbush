@@ -122,7 +122,9 @@
             activeObjects = _res.leafNodes;
 
             var grouping_nodes = _res.parentNodes[selectedHeight];
-            activeNodes = (grouping_nodes)? Object.keys(grouping_nodes) : null;
+            activeNodes = _.map(grouping_nodes, function (_gn) {
+                return _gn.id;
+            });
         }
 
         function updateList(_activeIds, _elCollection, _parentEl){
