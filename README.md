@@ -52,25 +52,31 @@ This facilitates working with groupings by the parent rtree nodes (and their UUI
 
 ```js
     var results = tree.search({minX: 0, minY: 0, maxX: 100, maxY: 100});
-    console.log(results.leafNodes); //now the normal results array from classic RBush
-    console.log(results.parentNodes); //Returns parent nodes organized by height and then UUID.
+    
+    //now the normal results array from classic RBush
+    console.log(results.leafNodes);
+    
+    //parent nodes by height; array index is (parent_node.height - 1)
+    console.log(results.parentNodes); 
+    
+    //Example output
     /*
-        {
-            0: {
-                '00000000-0000-0000-A000-000000000001': <Node>,
-                '00000000-0000-0000-A000-000000000002': <Node>,
-                '00000000-0000-0000-A000-000000000003': <Node>
-            },
+        [
+            0: [
+                <Node>,
+                <Node>,
+                <Node>
+            ],
 
-            1: {
-                '00000000-0000-0000-A000-000000000004': <Node>,
-                '00000000-0000-0000-A000-000000000005': <Node>
-            },
+            1: [
+                <Node>,
+                <Node>
+            ],
 
-            2: {
-                '00000000-0000-0000-A000-000000000006': <Node>
-            }
-        }
+            2: [
+                <Node>
+            ]
+        ]
     */
 ```
 
@@ -78,14 +84,16 @@ This facilitates working with groupings by the parent rtree nodes (and their UUI
 
 Both benchmarks performed with Node.js v6.2.2 on a Macbook Pro (mid-2012 A1278), with Samsung EVO SSD disk.
 
+(Note: these numbers hugely improved in version 2.0.5)
+
 Test                         | RBush (classic) | RBush-Ext
 ---------------------------- | ------ | ------
-insert 1M items one by one   | 3.71s  | 19.94s
-1000 searches of 0.01% area  | 0.03s  | 0.19s
-1000 searches of 1% area     | 0.34s  | 2.00s
-1000 searches of 10% area    | 2.30s  | 12.36s
-remove 1000 items one by one | 0.02s  | 0.25s
-bulk-insert 1M items         | 1.58s  | 4.60s
+insert 1M items one by one   | 3.71s  | 7.47s
+1000 searches of 0.01% area  | 0.03s  | 0.06s
+1000 searches of 1% area     | 0.34s  | 0.73s
+1000 searches of 10% area    | 2.30s  | 4.14s
+remove 1000 items one by one | 0.02s  | 0.22s
+bulk-insert 1M items         | 1.58s  | 3.23s
 
 ## Tests
 

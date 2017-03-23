@@ -3,7 +3,7 @@
 module.exports = rbush;
 
 var quickselect = require('quickselect');
-var uuid = require('uuid');
+var uuid = require("./lib/uuid.js");
 
 function rbush(maxEntries, format) {
     if (!(this instanceof rbush)) return new rbush(maxEntries, format);
@@ -58,10 +58,14 @@ rbush.prototype = {
 
         var node = this.data,
             result = {
-                parentNodes: {},
+                parentNodes: [],
                 leafNodes: []
             },
             toBBox = this.toBBox;
+
+        for(var _i = 0; _i < this.data.height; _i++){
+            result.parentNodes.push(new Array());
+        };
 
         if (!intersects(bbox, node)) return result;
 
@@ -75,8 +79,7 @@ rbush.prototype = {
                 childBBox = node.leaf ? toBBox(child) : child;
 
                 if (intersects(bbox, childBBox)) {
-                    result.parentNodes[node.height] = result.parentNodes[node.height] || {};
-                    result.parentNodes[node.height][node.id] = node;
+                    result.parentNodes[node.height - 1].push(node);
 
                     if (node.leaf) result.leafNodes.push(child);
                     else if (contains(bbox, childBBox)) this._all(child, result.leafNodes, result.parentNodes);
@@ -231,11 +234,9 @@ rbush.prototype = {
     },
 
     _all: function (node, result, parents) {
-        parents = parents || {};
         var nodesToSearch = [];
         while (node) {
-            parents[node.height] = parents[node.height] || {};
-            parents[node.height][node.id] = node;
+            if (parents) parents[node.height - 1].push(node);
             if (node.leaf) result.push.apply(result, node.children);
             else nodesToSearch.push.apply(nodesToSearch, node.children);
             node = nodesToSearch.pop();
@@ -521,7 +522,7 @@ rbush.prototype = {
     },
 
     _createNode: function (children) {
-        var id = uuid.v4();
+        var id = uuid();
         var node = {
             children: children,
             height: 1,

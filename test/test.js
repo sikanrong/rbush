@@ -266,13 +266,13 @@ t('#search should return parent nodes of all leaf nodes, sorted by height', func
     var toplevelNode = tree.data.children[0];
     var results = tree.search(toplevelNode);
 
-    var heightKeys = Object.keys(results.parentNodes[toplevelNode.height]);
-    t.same((heightKeys.indexOf(toplevelNode.id) >= 0), true);
+    var parent_ar = results.parentNodes[toplevelNode.height - 1];
+    t.ok(parent_ar.indexOf(toplevelNode) >= 0);
 
     //Search should only contain toplevelNode at toplevelNode.height since we searched toplevelNode's bbox.
-    t.same(heightKeys.length, 1);
+    t.same(parent_ar.length, 1);
 
-    t.same(results.parentNodes[toplevelNode.height][toplevelNode.id], toplevelNode);
+    t.same(results.parentNodes[toplevelNode.height - 1][0], toplevelNode);
     t.end();
 });
 
