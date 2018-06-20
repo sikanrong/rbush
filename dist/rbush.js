@@ -74,14 +74,15 @@ rbush.prototype = {
             i, len, child, childBBox;
 
         while (node) {
-            for (i = 0, len = node.children.length; i < len; i++) {
 
+            if (intersects(bbox, toBBox(node)))
+                result.parentNodes[node.height - 1].push(node);
+
+            for (i = 0, len = node.children.length; i < len; i++) {
                 child = node.children[i];
                 childBBox = node.leaf ? toBBox(child) : child;
 
                 if (intersects(bbox, childBBox)) {
-                    result.parentNodes[node.height - 1].push(node);
-
                     if (node.leaf) result.leafNodes.push(child);
                     else if (contains(bbox, childBBox)) this._all(child, result.leafNodes, result.parentNodes);
                     else nodesToSearch.push(child);
