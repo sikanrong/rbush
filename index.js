@@ -13,6 +13,10 @@ function rbush(maxEntries, format) {
     this._minEntries = Math.max(2, Math.ceil(this._maxEntries * 0.4));
 
     this._nodesUuid = {};
+    this._deterministic = false;
+    this._deterministicSeedFunction = function (_n) {
+        return _n.id || parseInt([_n.maxX, _n.maxY, _n.minX, _n.minY].join()).toString(16);
+    };
 
     if (format) {
         this._initFormat(format);
@@ -193,6 +197,13 @@ rbush.prototype = {
                     node.children.splice(index, 1);
                     path.push(node);
                     this._condense(path);
+
+                    if(this._deterministic)
+                        for(var i = path.length - 1; i >= 0; i--){
+                            var _node = path[i];
+                            _node.id = this._createUniqueId(_node.children);
+                        }
+
                     return this;
                 }
             }
@@ -231,6 +242,16 @@ rbush.prototype = {
             scope._nodesUuid[node.id] = node;
         });
 
+        return this;
+    },
+
+    setDeterminismSeedFunc: function (_func) {
+        this._deterministicSeedFunction = _func;
+        return this;
+    },
+
+    setDeterminism: function (_d) {
+        this._deterministic = _d;
         return this;
     },
 
@@ -293,6 +314,9 @@ rbush.prototype = {
             }
         }
 
+        if(this._deterministic)
+            node.id = this._createUniqueId(node.children);
+
         this._calcBBox(node, this.toBBox);
 
         return node;
@@ -352,8 +376,13 @@ rbush.prototype = {
         while (level >= 0) {
             if (insertPath[level].children.length > this._maxEntries) {
                 this._split(insertPath, level);
-                level--;
-            } else break;
+            };
+
+            //update deterministic ids up the tree
+            if(this._deterministic)
+                insertPath[level].id = this._createUniqueId(insertPath[level].children);
+
+            level--;
         }
 
         // adjust bboxes along the insertion path
@@ -522,8 +551,18 @@ rbush.prototype = {
         return destNode;
     },
 
+    _createUniqueId: function(children){
+        if(this._deterministic){
+            var seed = children.map(this._deterministicSeedFunction);
+            return uuid(seed);
+        }
+
+        return uuid();
+    },
+
     _createNode: function (children) {
-        var id = uuid();
+        var id  = this._createUniqueId(children);
+
         var node = {
             children: children,
             height: 1,

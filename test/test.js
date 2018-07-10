@@ -453,7 +453,7 @@ t('#clear should clear all the data in the tree', function (t) {
     t.end();
 });
 
-t('should have chainable API', function (t) {
+t('#should have chainable API', function (t) {
     t.doesNotThrow(function () {
         rbush()
             .load(data)
@@ -461,4 +461,51 @@ t('should have chainable API', function (t) {
             .remove(data[0]);
     });
     t.end();
+});
+
+t('#should generate determistic IDs if configured to', function (t) {
+
+    var node_ar_b = [], node_ar_a = [];
+
+    var treeA = rbush()
+        .setDeterminism(true)
+        .load(data);
+
+    var treeB = rbush()
+        .setDeterminism(true)
+        .load(data);
+
+    var getNodeIds = function(tree){
+        var node_ar = [];
+        tree.walk(function(_node){
+            if (_node.id) node_ar.push(_node.id);
+        });
+        return node_ar;
+    };
+
+    node_ar_a = getNodeIds(treeA);
+    node_ar_b = getNodeIds(treeB);
+
+    t.deepEquals(node_ar_a, node_ar_b, "should output the same ID keys for both trees.");
+
+    var newNode = {maxX: 10, maxY: 10, minX: 0, minY: 0};
+    treeA.insert(newNode);
+    node_ar_a = getNodeIds(treeA);
+
+    //the first two IDS have changed because they are the parent nodes to the node that we added.
+    t.notEqual(node_ar_a[0], node_ar_b[0], "node ID should have changed because the nodes under this node have changed");
+    t.notEqual(node_ar_a[1], node_ar_b[1]);
+    t.equal(node_ar_a[2], node_ar_b[2], "node ID should remain unchanged as it's heierarchy has not changed");
+    t.equal(node_ar_a[3], node_ar_b[3]);
+    t.equal(node_ar_a[4], node_ar_b[4]);
+    t.equal(node_ar_a[5], node_ar_b[5]);
+    t.equal(node_ar_a[6], node_ar_b[6]);
+
+    treeA.remove(newNode);
+    node_ar_a = getNodeIds(treeA);
+
+    t.deepEquals(node_ar_a, node_ar_b, "should be equal again after removing the disturbance");
+
+    t.end();
+
 });

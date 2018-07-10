@@ -47,6 +47,7 @@
     }
   },
   "dependencies": {
-    "quickselect": "^1.0.0"
+    "quickselect": "^1.0.0",
+    "random-seed": "^0.3.0"
   }
 }

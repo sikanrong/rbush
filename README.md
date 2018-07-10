@@ -13,11 +13,11 @@ Here's a [jsfiddle demo]: https://jsfiddle.net/sikanrong/4tjs1z8v/
 
 ### getNode
 
-RBush-Ext assigns a unique ID (UUID V4) to each node in the tree. This allows users to more easily make use of the
+RBush-Ext assigns an eight-digit alphanumeric ID to each node in the tree. This allows users to more easily make use of the
 internal tree structure for grouping. Nodes in the tree are indexed by UUID and can be retreived using getNode.
 
 ```js
-    var uuid = '550e8400-e29b-41d4-a716-446655440000';
+    var uuid = 'ksJ2Q1O5';
     // will return node that corresponds to this UUID, if one exists.
     var node = tree.getNode(uuid);
 ```
@@ -38,7 +38,7 @@ This function walks through all nodes in the tree.
 RBush-Ext adds an optional node parameter to #all, which allows to return all leaf nodes in the subtree.
 
 ```js
-    var uuid = '550e8400-e29b-41d4-a716-446655440000';
+    var uuid = 'ksJ2Q1O5';
     var node = tree.getNode(uuid);
     tree.all(node); //returns all leaf-nodes of this 'branch' (subtree) in an array.
 ```
@@ -79,6 +79,35 @@ This facilitates working with groupings by the parent rtree nodes (and their UUI
         ]
     */
 ```
+
+### setDeterminism
+Rbush-Ext adds an option to generate deterministic IDs. This means that 
+each node in the tree will have an ID generated based on the IDs of its 
+children. All changes to the underlying data will also cause 
+deterministic ID changes that bubble up the tree.
+
+```js
+var tree = rbush()
+    .setDeterminism(true)
+    .load(data);
+```
+
+### setDeterminismSeedFunc
+For the user-entered leaf-node data in the tree, there may not be a
+straightforward way to get a unique identifier for each node. By default
+rbush-ext uses the required bounding box of each child node, however a
+different function can be provided to calculate seed functions for the 
+leaf nodes of the tree. Example:
+
+```js
+var tree = rbush()
+    .setDeterminism(true)
+    .setDeterminismSeedFunc(function(_n) {
+        //if the leaf nodes have a UUID key, use it to generate the IDs of the tree's nodes
+        return _n.id || _n.uuid
+    })
+    .load(data);
+``` 
 
 ## Performance
 
