@@ -553,7 +553,7 @@ rbush.prototype = {
 
     _createUniqueId: function(children){
         if(this._deterministic){
-            var seed = children.map(this._deterministicSeedFunction);
+            var seed = children.map(this._deterministicSeedFunction).sort();
             return uuid(seed);
         }
 
