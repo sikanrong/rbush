@@ -1,6 +1,6 @@
 {
   "name": "@windfish-studio/rbush-ext",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Fork of @mourner's rBush package, allows for meaningful use of the internal tree groupings/nodes.",
   "homepage": "https://github.com/sikanrong/rbush",
   "repository": {
